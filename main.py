@@ -1,7 +1,8 @@
 from fastapi import FastAPI, APIRouter
 from app.models.user import User, Team, Department
 from app.models.course import Course, Enrollment
-from app.routes import auth, users, courses
+from app.models.module import Module, ContentType
+from app.routes import auth, users, courses, modules
 
 app = FastAPI(title="LMS Backend", version="1.0.0")
 
@@ -15,6 +16,7 @@ api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["User Management"])
 api_router.include_router(courses.router, prefix="/courses", tags=["Courses & Enrollment"])
+api_router.include_router(modules.router, tags=["Modules & Content"])
 
 app.include_router(api_router)
 

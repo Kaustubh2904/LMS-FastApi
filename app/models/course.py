@@ -29,4 +29,5 @@ class Course(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     enrollments = relationship("Enrollment", back_populates="course", cascade="all, delete-orphan")
-    # Will add modules and quizzes relationships in future sprints
+    modules = relationship("Module", back_populates="course", cascade="all, delete-orphan")
+    # Will add quizzes relationships in future sprints

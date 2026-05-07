@@ -5,6 +5,7 @@ from typing import List
 from app.database import get_db
 from app.models.course import Course, Enrollment
 from app.models.user import User, Team
+from app.models.quiz import Quiz, QuizAssignment
 from app.schemas.course import CourseCreate, CourseUpdate, CourseResponse, CourseAssignRequest, AssignmentTargetType
 from app.deps import get_current_admin, get_current_user
 
@@ -98,16 +99,26 @@ def assign_course(
     existing_enrollments = db.query(Enrollment.user_id).filter(Enrollment.course_id == course_id).all()
     existing_user_ids = {e[0] for e in existing_enrollments}
 
+    # Fetch quizzes embedded in this course for auto-assignment
+    course_quizzes = db.query(Quiz).filter(Quiz.course_id == course_id).all()
+
     new_enrollments = 0
     for user in users_to_enroll:
         if user.id not in existing_user_ids:
             enrollment = Enrollment(user_id=user.id, course_id=course.id)
             db.add(enrollment)
             new_enrollments += 1
+            
+            # Auto-assign embedded quizzes to newly enrolled user
+            for quiz in course_quizzes:
+                existing_qa = db.query(QuizAssignment).filter(
+                    QuizAssignment.quiz_id == quiz.id, 
+                    QuizAssignment.user_id == user.id
+                ).first()
+                if not existing_qa:
+                    db.add(QuizAssignment(quiz_id=quiz.id, user_id=user.id))
 
     db.commit()
-    
-    # Note: In Sprint 4/5 we will also trigger Quiz assignment logic here
     
     return {
         "message": f"Successfully assigned course to {new_enrollments} new users.",

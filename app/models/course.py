@@ -30,4 +30,4 @@ class Course(Base):
     
     enrollments = relationship("Enrollment", back_populates="course", cascade="all, delete-orphan")
     modules = relationship("Module", back_populates="course", cascade="all, delete-orphan")
-    # Will add quizzes relationships in future sprints
+    quizzes = relationship("Quiz", back_populates="course", cascade="all, delete-orphan")

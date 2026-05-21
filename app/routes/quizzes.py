@@ -75,11 +75,12 @@ def upload_questions_csv(
             continue
             
         points = 1
-        try:
-            if row.get('Points', '').strip():
-                points = int(row.get('Points'))
-        except ValueError:
-            pass
+        points_val = row.get('Points', '').strip()
+        if points_val:
+            try:
+                points = int(points_val)
+            except ValueError:
+                pass # Defaulting to 1 if not an integer
             
         q = Question(
             quiz_id=quiz.id,
